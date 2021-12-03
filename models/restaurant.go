@@ -3,9 +3,10 @@ package models
 import "time"
 
 type Restaurant struct {
-	ID      uint `json:"id" gorm:"primaryKey"`
-	Created time.Time
+	ID        uint `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time
 
-	Name         string `json:"name"`
-	SerialNumber string `json:"serial_number"`
+	Name     string
+	City     string
+	Cuisines []string `gorm:"type:string[]"` //explicitly tell gorm about array type
 }

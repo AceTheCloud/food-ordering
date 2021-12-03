@@ -14,4 +14,10 @@ func CreateRoutes(app *fiber.App) {
 	app.Get("/api/users", handlers.GetUsers)
 	app.Get("/api/users/:id", handlers.GetUser)
 	app.Delete("/api/users/:id", handlers.DeleteUser)
+
+	// User endpoints
+	app.Post("/api/restaurants", handlers.CreateRestaurant)
+	app.Get("/api/restaurants", handlers.GetRestaurants)
+	app.Get("/api/userestaurants/:id", handlers.GetRestaurant)
+	app.Delete("/api/restaurants/:id", handlers.DeleteRestaurant)
 }
