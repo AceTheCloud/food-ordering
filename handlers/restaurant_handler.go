@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"time"
 
 	"github.com/acethecloud/food-ordering/database"
 	"github.com/acethecloud/food-ordering/models"
@@ -10,10 +11,12 @@ import (
 
 type Restaurant struct {
 	// This is not the model, more like a serializer
-	ID       uint `json:"id"`
-	Name     string
-	City     string
-	Cuisines []string
+	ID          uint `json:"id"`
+	Name        string
+	City        string
+	OpeningTime time.Time `json:"opening_time"`
+	ClosingTime time.Time `json:"closing_time"`
+	Open        bool
 }
 
 func CreateRestaurant(ctx *fiber.Ctx) error {
@@ -30,10 +33,12 @@ func CreateRestaurant(ctx *fiber.Ctx) error {
 
 func createResponseRestaurant(restaurant models.Restaurant) Restaurant {
 	return Restaurant{
-		ID:       restaurant.ID,
-		Name:     restaurant.Name,
-		City:     restaurant.City,
-		Cuisines: restaurant.Cuisines,
+		ID:          restaurant.ID,
+		Name:        restaurant.Name,
+		City:        restaurant.City,
+		OpeningTime: restaurant.OpeningTime,
+		ClosingTime: restaurant.ClosingTime,
+		Open:        restaurant.Open,
 	}
 }
 
@@ -91,9 +96,11 @@ func UpdateRestaurant(c *fiber.Ctx) error {
 	}
 
 	type UpdateRestaurant struct {
-		Name     string
-		City     string
-		Cuisines []string
+		Name        string
+		City        string
+		Open        bool
+		OpeningTime time.Time `json:"opening_time"`
+		ClosingTime time.Time `json:"closing_time"`
 	}
 
 	var updateData UpdateRestaurant
@@ -104,7 +111,9 @@ func UpdateRestaurant(c *fiber.Ctx) error {
 
 	restaurant.Name = updateData.Name
 	restaurant.City = updateData.City
-	restaurant.Cuisines = updateData.Cuisines
+	restaurant.Open = updateData.Open
+	restaurant.OpeningTime = updateData.OpeningTime
+	restaurant.ClosingTime = updateData.ClosingTime
 
 	database.Database.Db.Save(&restaurant)
 
@@ -113,6 +122,7 @@ func UpdateRestaurant(c *fiber.Ctx) error {
 	return c.Status(200).JSON(responseRestaurant)
 }
 
+// Should be used only by root user or admin users
 func DeleteRestaurant(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 

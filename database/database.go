@@ -31,6 +31,7 @@ func ConnectDb() {
 	db.AutoMigrate(
 		&models.User{},
 		&models.Restaurant{},
+		&models.Cuisine{},
 		&models.Dish{},
 		&models.Order{},
 	)

@@ -8,6 +8,7 @@ type User struct {
 
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-
-	Email string
+	Email     string
+	Active    bool `gorm:"default:true"`
+	Deleted   bool `gorm:"default:false"`
 }
