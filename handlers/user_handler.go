@@ -24,11 +24,11 @@ func CreateUser(ctx *fiber.Ctx) error {
 	}
 
 	database.Database.Db.Create(&user)
-	responseUser := createResponseUser(user)
+	responseUser := CreateResponseUser(user)
 	return ctx.Status(200).JSON(responseUser)
 }
 
-func createResponseUser(user models.User) User {
+func CreateResponseUser(user models.User) User {
 	return User{
 		ID:        user.ID,
 		FirstName: user.FirstName,
@@ -42,14 +42,13 @@ func GetUsers(c *fiber.Ctx) error {
 	database.Database.Db.Find(&users)
 	responseUsers := []User{}
 	for _, user := range users {
-		responseUser := createResponseUser(user)
+		responseUser := CreateResponseUser(user)
 		responseUsers = append(responseUsers, responseUser)
 	}
-
 	return c.Status(200).JSON(responseUsers)
 }
 
-func findUser(id int, user *models.User) error {
+func findUser(id uint, user *models.User) error {
 	database.Database.Db.Find(&user, "id = ?", id)
 	if user.ID == 0 {
 		return errors.New("user does not exist")
@@ -66,11 +65,11 @@ func GetUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	if err := findUser(id, &user); err != nil {
+	if err := findUser(uint(id), &user); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-	responseUser := createResponseUser(user)
+	responseUser := CreateResponseUser(user)
 
 	return c.Status(200).JSON(responseUser)
 }
@@ -84,7 +83,7 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	err = findUser(id, &user)
+	err = findUser(uint(id), &user)
 
 	if err != nil {
 		return c.Status(400).JSON(err.Error())
@@ -106,7 +105,7 @@ func UpdateUser(c *fiber.Ctx) error {
 
 	database.Database.Db.Save(&user)
 
-	responseUser := createResponseUser(user)
+	responseUser := CreateResponseUser(user)
 
 	return c.Status(200).JSON(responseUser)
 
@@ -121,7 +120,7 @@ func DeleteUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	err = findUser(id, &user)
+	err = findUser(uint(id), &user)
 
 	if err != nil {
 		return c.Status(400).JSON(err.Error())

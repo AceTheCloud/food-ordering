@@ -33,6 +33,7 @@ func ConnectDb() {
 		&models.Restaurant{},
 		&models.Cuisine{},
 		&models.Dish{},
+		&models.OrderItem{},
 		&models.Order{},
 	)
 

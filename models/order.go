@@ -1,16 +1,19 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/acethecloud/food-ordering/enums"
+)
 
 type Order struct {
 	ID        uint `json:"id" gorm:"primaryKey"`
 	CreatedAt time.Time
 
-	DishRefer uint `json:"dish_id"`
-	Dish      Dish `gorm:"foreignKey:DishRefer"`
-
 	UserRefer uint `json:"user_id"`
-	User      User `gorm:"foreignKey:UserRefer"`
+	OrderedBy User `gorm:"foreignKey:UserRefer"`
 
-	Status string
+	TotalPrice uint `json:"total_price"`
+
+	Status enums.Status `json:"status" gorm:"default:1"`
 }

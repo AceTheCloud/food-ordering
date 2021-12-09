@@ -9,6 +9,7 @@ type Dish struct {
 	Name      string `json:"name"`
 	Available bool   `gorm:"default:true"`
 	Deleted   bool   `gorm:"default:false"`
+	Price     uint   `json:"price"`
 
 	RestaurantRefer uint       `json:"restaurant_id"`
 	Restaurant      Restaurant `gorm:"foreignKey:RestaurantRefer"`
