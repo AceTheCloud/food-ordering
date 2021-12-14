@@ -39,7 +39,7 @@ func CreateResponseUser(user models.User) User {
 
 func GetUsers(c *fiber.Ctx) error {
 	users := []models.User{}
-	database.Database.Db.Find(&users)
+	database.Database.Db.Where("deleted = ?", false).Find(&users)
 	responseUsers := []User{}
 	for _, user := range users {
 		responseUser := CreateResponseUser(user)
@@ -49,7 +49,7 @@ func GetUsers(c *fiber.Ctx) error {
 }
 
 func findUser(id uint, user *models.User) error {
-	database.Database.Db.Find(&user, "id = ?", id)
+	database.Database.Db.Find(&user, "deleted = ? AND id = ?", false, id)
 	if user.ID == 0 {
 		return errors.New("user does not exist")
 	}
@@ -125,8 +125,11 @@ func DeleteUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
+	user.Deleted = true
 
-	if err = database.Database.Db.Delete(&user).Error; err != nil {
+	//Updating to showcase softdelete
+	//In case of real delete simply use Db.Delete(&user)
+	if err = database.Database.Db.Save(&user).Error; err != nil {
 		return c.Status(404).JSON(err.Error())
 	}
 	return c.Status(200).JSON("Successfully deleted User")

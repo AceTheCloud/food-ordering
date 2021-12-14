@@ -14,22 +14,26 @@ func SetRoutes(app *fiber.App) {
 	app.Get("/api/users", handlers.GetUsers)
 	app.Get("/api/users/:id", handlers.GetUser)
 	app.Put("/api/users/:id", handlers.UpdateUser)
+	app.Delete("/api/users/:id", handlers.DeleteUser)
 
 	// Restaurants endpoints
 	app.Post("/api/restaurants", handlers.CreateRestaurant)
 	app.Get("/api/restaurants", handlers.GetRestaurants)
 	app.Get("/api/restaurants/:id", handlers.GetRestaurant)
 	app.Put("/api/restaurants/:id", handlers.UpdateRestaurant)
+	app.Delete("/api/restaurants/:id", handlers.DeleteRestaurant)
 
 	// Cuisines endpoints
 	app.Post("/api/cuisines", handlers.CreateCuisine)
 	app.Get("/api/cuisines", handlers.GetCuisines)
 	app.Get("/api/cuisines/:id", handlers.GetCuisine)
 	app.Put("/api/cuisines/:id", handlers.UpdateCuisine)
+	app.Delete("/api/cuisines/:id", handlers.DeleteCuisine)
 
 	// Cuisines endpoints
-	app.Post("/api/cuisines", handlers.CreateCuisine)
-	app.Get("/api/cuisines", handlers.GetCuisines)
-	app.Get("/api/cuisines/:id", handlers.GetCuisine)
-	app.Put("/api/cuisines/:id", handlers.UpdateCuisine)
+	app.Post("/api/dish", handlers.CreateDish)
+	app.Get("/api/dishesByRestaurant/:id", handlers.GetDishesByRestaurant)
+	app.Get("/api/dish/:id", handlers.GetDish)
+	app.Put("/api/dish/:id", handlers.UpdateDish)
+	app.Delete("/api/dish/:id", handlers.DeleteDish)
 }

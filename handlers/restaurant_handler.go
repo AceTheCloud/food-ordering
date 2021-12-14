@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"time"
 
 	"github.com/acethecloud/food-ordering/database"
 	"github.com/acethecloud/food-ordering/models"
@@ -14,8 +13,8 @@ type Restaurant struct {
 	ID          uint `json:"id"`
 	Name        string
 	City        string
-	OpeningTime time.Time `json:"opening_time"`
-	ClosingTime time.Time `json:"closing_time"`
+	OpeningTime uint8 `json:"opening_time"`
+	ClosingTime uint8 `json:"closing_time"`
 	Open        bool
 }
 
@@ -44,7 +43,7 @@ func createResponseRestaurant(restaurant models.Restaurant) Restaurant {
 
 func GetRestaurants(c *fiber.Ctx) error {
 	restaurants := []models.Restaurant{}
-	database.Database.Db.Find(&restaurants)
+	database.Database.Db.Where("deleted", false).Find(&restaurants)
 	responseRestaurants := []Restaurant{}
 	for _, restaurant := range restaurants {
 		responseRestaurant := createResponseRestaurant(restaurant)
@@ -54,8 +53,8 @@ func GetRestaurants(c *fiber.Ctx) error {
 	return c.Status(200).JSON(responseRestaurants)
 }
 
-func findRestaurant(id int, restaurant *models.Restaurant) error {
-	database.Database.Db.Find(&restaurant, "id = ?", id)
+func findRestaurant(id uint, restaurant *models.Restaurant) error {
+	database.Database.Db.Find(&restaurant, "deleted = ? AND id = ?", false, id)
 	if restaurant.ID == 0 {
 		return errors.New("Restaurant does not exist")
 	}
@@ -71,7 +70,7 @@ func GetRestaurant(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	if err := findRestaurant(id, &restaurant); err != nil {
+	if err := findRestaurant(uint(id), &restaurant); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
@@ -89,7 +88,7 @@ func UpdateRestaurant(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	err = findRestaurant(id, &restaurant)
+	err = findRestaurant(uint(id), &restaurant)
 
 	if err != nil {
 		return c.Status(400).JSON(err.Error())
@@ -99,8 +98,8 @@ func UpdateRestaurant(c *fiber.Ctx) error {
 		Name        string
 		City        string
 		Open        bool
-		OpeningTime time.Time `json:"opening_time"`
-		ClosingTime time.Time `json:"closing_time"`
+		OpeningTime uint8 `json:"opening_time"`
+		ClosingTime uint8 `json:"closing_time"`
 	}
 
 	var updateData UpdateRestaurant
@@ -132,13 +131,16 @@ func DeleteRestaurant(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	err = findRestaurant(id, &restaurant)
+	err = findRestaurant(uint(id), &restaurant)
 
 	if err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
+	restaurant.Deleted = true
 
-	if err = database.Database.Db.Delete(&restaurant).Error; err != nil {
+	//Updating to showcase softdelete
+	//In case of real delete simply use Db.Delete(&restaurant)
+	if err = database.Database.Db.Save(&restaurant).Error; err != nil {
 		return c.Status(404).JSON(err.Error())
 	}
 	return c.Status(200).JSON("Successfully deleted Restaurant")

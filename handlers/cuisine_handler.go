@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/acethecloud/food-ordering/database"
 	"github.com/acethecloud/food-ordering/models"
@@ -33,11 +34,18 @@ func createResponseCuisine(cuisine models.Cuisine) Cuisine {
 	}
 }
 
-func GetCuisines(c *fiber.Ctx) error {
+func getAllCuisines() ([]models.Cuisine, error) {
 	cuisines := []models.Cuisine{}
-	database.Database.Db.Find(&cuisines)
-	responseCuisines := []Cuisine{}
+	database.Database.Db.Where("deleted = ?", false).Find(&cuisines)
+	return cuisines, nil
+}
 
+func GetCuisines(c *fiber.Ctx) error {
+	cuisines, err := getAllCuisines()
+	if err != nil {
+		return c.Status(200).JSON("No Cuisines found")
+	}
+	responseCuisines := []Cuisine{}
 	for _, cuisine := range cuisines {
 		responseCuisine := createResponseCuisine(cuisine)
 		responseCuisines = append(responseCuisines, responseCuisine)
@@ -45,8 +53,9 @@ func GetCuisines(c *fiber.Ctx) error {
 	return c.Status(200).JSON(responseCuisines)
 }
 
-func findCuisine(id int, cuisine *models.Cuisine) error {
-	database.Database.Db.Find(&cuisine, "id = ?", id)
+func findCuisine(id uint, cuisine *models.Cuisine) error {
+	database.Database.Db.Where("deleted = ? AND id = ?", false, id).Find(&cuisine)
+	fmt.Println(id)
 	if cuisine.ID == 0 {
 		return errors.New("Cuisine does not exist")
 	}
@@ -57,14 +66,17 @@ func GetCuisine(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 
 	var cuisine models.Cuisine
+
 	if err != nil {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
-	if err := findCuisine(id, &cuisine); err != nil {
+
+	if err := findCuisine(uint(id), &cuisine); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	responseCuisine := createResponseCuisine(cuisine)
+
 	return c.Status(200).JSON(responseCuisine)
 }
 
@@ -76,7 +88,7 @@ func UpdateCuisine(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	err = findCuisine(id, &cuisine)
+	err = findCuisine(uint(id), &cuisine)
 
 	if err != nil {
 		return c.Status(400).JSON(err.Error())
@@ -111,13 +123,16 @@ func DeleteCuisine(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	err = findCuisine(id, &cuisine)
+	err = findCuisine(uint(id), &cuisine)
 
 	if err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
+	cuisine.Deleted = true
 
-	if err = database.Database.Db.Delete(&cuisine).Error; err != nil {
+	//Updating to showcase softdelete
+	//In case of real delete simply use Db.Delete(&cuisine)
+	if err = database.Database.Db.Save(&cuisine).Error; err != nil {
 		return c.Status(404).JSON(err.Error())
 	}
 	return c.Status(200).JSON("Successfully deleted Cuisine")

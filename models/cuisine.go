@@ -3,8 +3,10 @@ package models
 import "time"
 
 type Cuisine struct {
-	ID      uint `json:"id" gorm:"primaryKey"`
-	Created time.Time
+	ID uint `json:"id" gorm:"primaryKey"`
 
-	Name string
+	Name    string
+	Deleted bool `gorm:"default:false"`
+
+	Created time.Time
 }
