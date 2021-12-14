@@ -30,10 +30,12 @@ func SetRoutes(app *fiber.App) {
 	app.Put("/api/cuisines/:id", handlers.UpdateCuisine)
 	app.Delete("/api/cuisines/:id", handlers.DeleteCuisine)
 
-	// Cuisines endpoints
+	// Dish endpoints
 	app.Post("/api/dish", handlers.CreateDish)
 	app.Get("/api/dishesByRestaurant/:id", handlers.GetDishesByRestaurant)
 	app.Get("/api/dish/:id", handlers.GetDish)
 	app.Put("/api/dish/:id", handlers.UpdateDish)
 	app.Delete("/api/dish/:id", handlers.DeleteDish)
+
+	// ToDo : Order Endpoints
 }
